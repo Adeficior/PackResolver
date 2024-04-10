@@ -1,6 +1,6 @@
 import { existsSync, statSync } from 'fs'
 import lodash from 'lodash'
-import { extname, resolve } from 'path'
+import { extname, join, resolve } from 'path'
 import { PacksConfig, getConfig } from '../config.js'
 import Options, { FilterOptions } from '../options.js'
 import { PathInfo, arrayOrSelf, exists, listChildren } from '../util.js'
@@ -50,9 +50,12 @@ function createResolversFor(
 
    const resolvers = lodash
       .orderBy(packs, it => it.config?.priority ?? 0)
-      .map(file => {
-         const resolver = tryCreateResolver(file, options)
-         return resolver && { resolver, name: file.name }
+      .flatMap(({ config, name, path, info }) => {
+         const paths = arrayOrSelf(config?.paths ?? '.')
+         return paths.map(suffix => {
+            const resolver = tryCreateResolver({ path: join(path, suffix), info }, options)
+            return resolver && { resolver, name }
+         })
       })
       .filter(exists)
 
