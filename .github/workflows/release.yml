@@ -78,4 +78,4 @@ jobs:
 
          - run: bun run build
 
-         - run: bun publish --no-git-checks --provenance --access public --tag rc
+         - run: bunx npm publish --no-git-checks --provenance --access public --tag rc
