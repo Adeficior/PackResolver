@@ -1,4 +1,4 @@
-import type { Acceptor } from "../../src/index.js";
+import type { Acceptor } from "../index.js";
 
 export interface TestAcceptor extends Acceptor {
   at(path: string): string | null;
