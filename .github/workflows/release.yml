@@ -4,12 +4,12 @@ on:
    release:
       types: [published]
 
+permissions:
+   id-token: write
+   contents: read
+
 jobs:
    release:
-      permissions:
-         contents: read
-         packages: write
-
       runs-on: ubuntu-latest
       steps:
          - uses: actions/checkout@v6
@@ -29,6 +29,4 @@ jobs:
 
          - run: bun run build
 
-         - run: bun npm publish --no-git-checks --provenance --access public
-           env:
-              NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+         - run: bun publish --no-git-checks --provenance --access public

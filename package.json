@@ -29,16 +29,16 @@
    },
    "repository": {
       "type": "git",
-      "url": "https://github.com/PssbleTrngle/PackResolver.git"
+      "url": "git+https://github.com/Adeficior/PackResolver.git"
    },
    "publishConfig": {
       "registry": "https://npm.pkg.github.com"
    },
    "license": "ISC",
    "bugs": {
-      "url": "https://github.com/PssbleTrngle/PackResolver/issues"
+      "url": "https://github.com/Adeficior/PackResolver/issues"
    },
-   "homepage": "https://github.com/PssbleTrngle/PackResolver#readme",
+   "homepage": "https://github.com/Adeficior/PackResolver#readme",
    "devDependencies": {
       "@eslint/js": "^10.0.1",
       "@types/bun": "latest",
