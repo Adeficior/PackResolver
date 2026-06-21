@@ -31,9 +31,6 @@
       "type": "git",
       "url": "git+https://github.com/Adeficior/PackResolver.git"
    },
-   "publishConfig": {
-      "registry": "https://npm.pkg.github.com"
-   },
    "license": "ISC",
    "bugs": {
       "url": "https://github.com/Adeficior/PackResolver/issues"

@@ -76,4 +76,4 @@ jobs:
               registry-url: "https://registry.npmjs.org"
               package-manager-cache: false
 
-         - run: npm publish --no-git-checks --access public --tag rc
+         - run: npm publish --no-git-checks --provenance --access public --tag rc
