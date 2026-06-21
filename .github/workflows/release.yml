@@ -38,6 +38,9 @@ jobs:
    check:
       runs-on: ubuntu-latest
       if: github.event_name != 'release'
+      outputs:
+         tag: ${{ steps.action.outputs.tag }}
+         matched: ${{ steps.action.outputs.matched }}
       steps:
          - uses: PssbleTrngle/find-release@v1
            if: ${{ github.event_name != 'pull_request' }}
@@ -45,10 +48,6 @@ jobs:
            with:
               type: draft
               token: ${{ secrets.GITHUB_TOKEN }}
-
-         - run: |
-              echo "tag=${{ steps.action.outputs.tag }}" >> "$GITHUB_OUTPUT"
-              echo "matched=${{ steps.action.outputs.matched }}" >> "$GITHUB_OUTPUT"
 
    prerelease:
       runs-on: ubuntu-latest
