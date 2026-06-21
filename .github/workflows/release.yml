@@ -67,7 +67,7 @@ jobs:
            with:
               file: package.json
               field: version
-              value: ${{ needs.check.outputs.tag }}
+              value: ${{ needs.check.outputs.tag }}-rc.${{ github.run_number }}
 
          - run: bun run build
 
