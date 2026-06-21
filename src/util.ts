@@ -1,7 +1,7 @@
-import crypto from "crypto";
-import type { Stats } from "fs";
-import { readdirSync, statSync } from "fs";
-import { join } from "path/posix";
+import crypto from "node:crypto";
+import type { Stats } from "node:fs";
+import { readdirSync, statSync } from "node:fs";
+import { join } from "node:path/posix";
 
 export function exists<T>(value?: T | null): value is T {
   return (value ?? null) !== null;
