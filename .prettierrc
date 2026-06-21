@@ -1,0 +1,11 @@
+// <meta>
+//    <source>@pssbletrngle/github-meta-generator</source>
+//    <version>1.0.95</version>
+//    <timestamp>2026-06-21T19:19:26.859Z</timestamp>
+//    <hash>cee51154aaae2ff5</hash>
+// </meta>
+
+{
+   "$schema": "https://json.schemastore.org/prettierrc",
+   "tabWidth": 2
+}
