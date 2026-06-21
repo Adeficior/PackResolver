@@ -1,4 +1,9 @@
 {
-   "replace": false,
-   "values": ["minecraft:stone", "minecraft:diorite", "minecraft:obsidian", "#minecraft:shulker_boxes"]
+  "replace": false,
+  "values": [
+    "minecraft:stone",
+    "minecraft:diorite",
+    "minecraft:obsidian",
+    "#minecraft:shulker_boxes"
+  ]
 }

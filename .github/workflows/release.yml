@@ -1,7 +1,8 @@
 name: Release
+
 on:
    release:
-      types: [created]
+      types: [published]
 
 jobs:
    release:
@@ -9,9 +10,15 @@ jobs:
          contents: read
          packages: write
 
-      runs-on: ubuntu-20.04
+      runs-on: ubuntu-latest
       steps:
-         - uses: actions/checkout@v3
+         - uses: actions/checkout@v6
+
+         - name: Setup Bun
+           uses: oven-sh/setup-bun@v2
+
+         - name: Install Dependencies
+           run: bun install --frozen-lockfile
 
          - name: Update version
            uses: jossef/action-set-json-field@v2
@@ -20,17 +27,8 @@ jobs:
               field: version
               value: ${{ github.event.release.tag_name }}
 
-         - uses: actions/setup-node@v3
-           with:
-              node-version: 16
+         - run: bun run build
 
-         - uses: pnpm/action-setup@v2
-           with:
-              run_install: |
-                 - recursive: true
-                   args: [--frozen-lockfile, --strict-peer-dependencies]
-
-         - run: npm run build
-         - run: npm publish
+         - run: bun npm publish --no-git-checks --provenance --access public
            env:
-              GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+              NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}

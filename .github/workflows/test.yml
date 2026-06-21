@@ -1,32 +1,29 @@
 name: Test
+
 on:
+   workflow_dispatch:
    pull_request:
       types: [opened, synchronize]
    push:
       branches: [main]
 
+concurrency:
+   group: ${{ github.workflow }}-${{ github.ref }}
+   cancel-in-progress: true
+
 jobs:
    test:
-      permissions:
-         contents: read
-         packages: read
-
-      runs-on: ubuntu-20.04
+      runs-on: ubuntu-latest
       steps:
-         - uses: actions/checkout@v3
+         - uses: actions/checkout@v6
            with:
               fetch-depth: 0
 
-         - uses: actions/setup-node@v3
-           with:
-              node-version: 16
+         - name: Setup Bun
+           uses: oven-sh/setup-bun@v2
 
-         - uses: pnpm/action-setup@v2
-           with:
-              run_install: |
-                 - recursive: true
-                   args: [--frozen-lockfile, --strict-peer-dependencies]
-           env:
-              GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+         - name: Install Dependencies
+           run: bun install --frozen-lockfile
 
-         - run: pnpm run test:ci
+         - name: Run tests
+           run: bun run test:ci

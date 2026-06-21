@@ -1,13 +1,13 @@
-import createTestAcceptor from './mock/TestAcceptor.js'
-import createTestResolver from './mock/TestResolver.js'
+import { expect, it, mock } from "bun:test";
+import { createTestAcceptor, createTestResolver } from "../src/testing";
 
-it('does not log to console with silent option', async () => {
-   console.log = jest.fn()
+it("does not log to console with silent option", async () => {
+  console.log = mock();
 
-   const resolver = createTestResolver({ silent: true })
-   const acceptor = createTestAcceptor()
+  const resolver = createTestResolver({ silent: true });
+  const acceptor = createTestAcceptor();
 
-   await resolver.extract(acceptor)
+  await resolver.extract(acceptor);
 
-   expect(console.log).not.toHaveBeenCalled()
-})
+  expect(console.log).not.toHaveBeenCalled();
+});

@@ -1,29 +1,37 @@
 {
    "compilerOptions": {
-      "outDir": "dist",
-      "strict": true,
+      // Environment setup & latest features
       "lib": [
-         "es2018",
-         "dom"
+         "ESNext"
       ],
-      "target": "es2018",
-      "moduleResolution": "node",
-      "module": "ES2022",
-      "sourceMap": true,
-      "resolveJsonModule": true,
-      "esModuleInterop": true,
-      "emitDecoratorMetadata": true,
-      "experimentalDecorators": true,
-      "declarationMap": true,
-      "declaration": true,
+      "target": "ESNext",
+      "module": "Preserve",
+      "moduleDetection": "force",
+      "jsx": "react-jsx",
       "allowJs": true,
+      "types": [
+         "bun"
+      ],
+      // Bundler mode
+      "moduleResolution": "bundler",
+      "verbatimModuleSyntax": true,
+      // Best practices
+      "strict": true,
+      "skipLibCheck": true,
+      "noFallthroughCasesInSwitch": true,
+      "noUncheckedIndexedAccess": true,
+      "noImplicitOverride": true,
+      // Some stricter flags (disabled by default)
+      "noUnusedLocals": false,
+      "noUnusedParameters": false,
+      "noPropertyAccessFromIndexSignature": false,
+      "declaration": true,
+      "sourceMap": true,
+      "rootDir": ".",
+      "outDir": "./dist"
    },
    "include": [
-      "src"
-   ],
-   "exclude": [
-      "node_modules",
-      "dist",
+      "src",
       "test"
-   ]
+   ],
 }
