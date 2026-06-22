@@ -15,12 +15,16 @@ export default class ArchiveResolver extends FilteringResolver {
     const zip = new ZIP.async({ file: this.archive });
 
     try {
-      const entries = Object.values(await zip.entries());
-      for (const entry of entries) {
-        if (entry.isDirectory) return;
-        const content = await zip.entryData(entry);
-        await acceptor(entry.name, content);
-      }
+      const entries = await zip.entries();
+      await Promise.all(
+        Object.values(entries)
+          .filter((it) => this.filter(it.name))
+          .map(async (entry) => {
+            if (entry.isFile) {
+              acceptor(entry.name, await zip.entryData(entry));
+            }
+          }),
+      );
     } catch (cause) {
       throw new Error(`unable to load ${this.archive}`, { cause });
     } finally {

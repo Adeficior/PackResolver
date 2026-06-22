@@ -8,6 +8,6 @@ describe("archives", () => {
 
     await resolver.extract(acceptor);
 
-    expect(acceptor.paths()).toHaveLength(8254);
+    expect(acceptor.paths()).toHaveLength(8675);
   });
 });
