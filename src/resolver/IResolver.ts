@@ -5,7 +5,9 @@ export interface IResolver {
   extract(acceptor: Acceptor): Promise<void>;
 }
 
-export interface Acceptor<T = NodeJS.ArrayBufferView | string> {
+export type Acceptable = string | NodeJS.ArrayBufferView;
+
+export interface Acceptor<T = Acceptable> {
   (path: string, content: T): void | false | Promise<void | false>;
 }
 
