@@ -1,3 +1,5 @@
+import type { Logger } from "./logger";
+
 export interface FilterOptions {
   exclude?: string | string[];
   include?: string | string[];
@@ -5,5 +7,5 @@ export interface FilterOptions {
 
 export default interface Options extends FilterOptions {
   from: string | string[];
-  silent?: boolean;
+  logger?: Logger | false;
 }

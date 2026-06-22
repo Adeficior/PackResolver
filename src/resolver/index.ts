@@ -2,6 +2,7 @@ import { existsSync, statSync } from "fs";
 import { extname, join, resolve } from "path";
 import type { PacksConfig } from "../config.js";
 import { getConfig } from "../config.js";
+import { createLogger, silentLogger, type Logger } from "../logger.js";
 import type Options from "../options.js";
 import type { FilterOptions } from "../options.js";
 import type { PathInfo } from "../util.js";
@@ -70,13 +71,15 @@ function createResolversFor(
   return resolvers;
 }
 
+type MergeOptions = Omit<Options, "from"> & { async?: boolean };
+
 export function mergeResolvers(
   resolvers: Array<IResolver | ResolverInfo>,
-  options?: Options & { async?: boolean },
+  options: MergeOptions = {},
 ): IResolver {
   const runners = resolvers.map((it) => (acceptor: Acceptor) => {
     if ("extract" in it) return it.extract(acceptor);
-    if (!options?.silent) console.log(it.name);
+    loggerOf(options).info(it.name);
     return it.resolver.extract(acceptor);
   });
 
@@ -97,8 +100,7 @@ export function createResolvers(options: Options, config?: PacksConfig) {
   const resolvers = arrayOrSelf(options.from).flatMap((from) =>
     createResolversFor(options, from, config),
   );
-  if (!options.silent)
-    console.log(`Found ${resolvers.length} resource/data packs`);
+  loggerOf(options).info(`Found ${resolvers.length} resource/data packs`);
   return resolvers;
 }
 
@@ -107,5 +109,13 @@ export function createMergedResolver(
   config?: PacksConfig,
 ) {
   const resolvers = createResolvers(options, config);
-  return mergeResolvers(resolvers, options);
+  return mergeResolvers(resolvers, {
+    ...options,
+    logger: loggerOf(options).group(),
+  });
+}
+
+function loggerOf(options: Pick<Options, "logger">): Logger {
+  if (options.logger === false) return silentLogger();
+  return options.logger ?? createLogger();
 }

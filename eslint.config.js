@@ -8,6 +8,7 @@ export default defineConfig([
   ts.configs.recommended,
   {
     rules: {
+      "no-console": "error",
       "@typescript-eslint/consistent-type-imports": "error",
       "@typescript-eslint/consistent-type-exports": "error",
       "@typescript-eslint/no-unused-vars": [

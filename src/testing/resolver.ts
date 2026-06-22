@@ -10,7 +10,7 @@ export function createTestResolver(
 ) {
   const from = join(base, folder);
   return createMergedResolver({
-    silent: true,
+    logger: false,
     from,
     ...options,
   });
