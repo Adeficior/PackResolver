@@ -1,3 +1,4 @@
+import ZIP from "node-stream-zip";
 import type { FilterOptions } from "../options.js";
 import type { Acceptor } from "./IResolver.js";
 import { FilteringResolver } from "./IResolver.js";
@@ -11,12 +12,19 @@ export default class ArchiveResolver extends FilteringResolver {
   }
 
   async accept(acceptor: Acceptor) {
-    const tarball = await Bun.file(this.archive).bytes();
-    const archive = new Bun.Archive(tarball);
+    const zip = new ZIP.async({ file: this.archive });
 
-    for (const [filename, file] of await archive.files()) {
-      const content = await file.bytes();
-      await acceptor(filename, content);
+    try {
+      const entries = Object.values(await zip.entries());
+      for (const entry of entries) {
+        if (entry.isDirectory) return;
+        const content = await zip.entryData(entry);
+        await acceptor(entry.name, content);
+      }
+    } catch (cause) {
+      throw new Error(`unable to load ${this.archive}`, { cause });
+    } finally {
+      zip.close();
     }
   }
 }

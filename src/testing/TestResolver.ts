@@ -1,10 +1,17 @@
+import { join } from "node:path";
 import type { Options } from "../index.js";
 import { createMergedResolver } from "../index.js";
 
-export function createTestResolver(options: Partial<Options>) {
+const base = "test/resources";
+
+export function createTestResolver(
+  folder: string,
+  options: Partial<Options> = {},
+) {
+  const from = join(base, folder);
   return createMergedResolver({
     silent: true,
-    from: "test/resources",
+    from,
     ...options,
   });
 }

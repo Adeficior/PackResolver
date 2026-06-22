@@ -4,7 +4,7 @@ import { createTestAcceptor, createTestResolver } from "../src/testing";
 it("does not log to console with silent option", async () => {
   console.log = mock();
 
-  const resolver = createTestResolver({ silent: true });
+  const resolver = createTestResolver("folder", { silent: true });
   const acceptor = createTestAcceptor();
 
   await resolver.extract(acceptor);
