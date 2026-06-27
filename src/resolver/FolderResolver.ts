@@ -2,8 +2,8 @@ import { readFileSync } from "fs";
 import { join } from "path/posix";
 import type { FilterOptions } from "../options.js";
 import { listChildren } from "../util.js";
-import type { Acceptor } from "./IResolver.js";
-import { FilteringResolver } from "./IResolver.js";
+import type { Acceptor } from "./index.js";
+import { FilteringResolver } from "./index.js";
 
 export default class FolderResolver extends FilteringResolver {
   constructor(

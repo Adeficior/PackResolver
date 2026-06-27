@@ -6,6 +6,6 @@ export interface FilterOptions {
 }
 
 export default interface Options extends FilterOptions {
-  from: string | string[];
+  from: string;
   logger?: Logger | false;
 }
