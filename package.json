@@ -22,6 +22,7 @@
    ],
    "scripts": {
       "build": "tsc --project tsconfig.build.json",
+      "check": "tsc --noEmit",
       "lint": "eslint {src,test}",
       "format": "prettier --write {src,test}",
       "test": "bun test",
@@ -49,6 +50,7 @@
    },
    "dependencies": {
       "minimatch": "^10.2.5",
-      "node-stream-zip": "^1.15.0"
+      "node-stream-zip": "^1.15.0",
+      "zip-a-folder": "^6.1.1"
    }
 }

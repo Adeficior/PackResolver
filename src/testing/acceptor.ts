@@ -11,17 +11,17 @@ export interface TestAcceptor extends Acceptor {
 export function createTestAcceptor(): TestAcceptor {
   const received = new Map<string, string>();
 
-  const acceptor: TestAcceptor = (path, content) => {
+  const accept: TestAcceptor["accept"] = (path, content) => {
     received.set(path, content.toString());
   };
 
-  acceptor.paths = () => [...received.keys()].sort();
+  const paths: TestAcceptor["paths"] = () => [...received.keys()].sort();
 
-  acceptor.at = (path) => received.get(path) ?? null;
-  acceptor.jsonAt = (path) => {
-    const raw = acceptor.at(path);
+  const at: TestAcceptor["at"] = (path) => received.get(path) ?? null;
+  const jsonAt: TestAcceptor["jsonAt"] = (path) => {
+    const raw = at(path);
     return raw && JSON.parse(raw);
   };
 
-  return acceptor;
+  return { accept, paths, at, jsonAt };
 }

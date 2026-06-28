@@ -1,9 +1,10 @@
 import { describe, expect, it } from "bun:test";
-import { createTestAcceptor, createTestResolver } from "../src/testing";
+import { createTestAcceptor } from "../src/testing";
+import createResourcesResolver from "./resources";
 
 describe("filters using include option", () => {
   it("filters using single include", async () => {
-    const resolver = createTestResolver("folder", {
+    const resolver = createResourcesResolver("folder", {
       include: "data/*/tags/**/*.json",
     });
     const acceptor = createTestAcceptor();
@@ -18,7 +19,7 @@ describe("filters using include option", () => {
   });
 
   it("filters using single include in array", async () => {
-    const resolver = createTestResolver("folder", {
+    const resolver = createResourcesResolver("folder", {
       include: ["data/*/recipe/**/*.json"],
     });
     const acceptor = createTestAcceptor();
@@ -32,7 +33,7 @@ describe("filters using include option", () => {
   });
 
   it("filters using multiple includes", async () => {
-    const resolver = createTestResolver("folder", {
+    const resolver = createResourcesResolver("folder", {
       include: ["data/minecraft/recipe/**/*.json", "data/example/**/*.json"],
     });
     const acceptor = createTestAcceptor();
@@ -45,9 +46,11 @@ describe("filters using include option", () => {
       "data/minecraft/recipe/cooked_beef.json",
     ]);
   });
+  const resolver = createResourcesResolver("folder", {
+    include: [],
+  });
 
   it("filters using empty include array", async () => {
-    const resolver = createTestResolver("folder", { include: [] });
     const acceptor = createTestAcceptor();
 
     await resolver.extract(acceptor);
@@ -58,7 +61,7 @@ describe("filters using include option", () => {
 
 describe("filters using exclude option", () => {
   it("filters using single exclude", async () => {
-    const resolver = createTestResolver("folder", {
+    const resolver = createResourcesResolver("folder", {
       exclude: "data/*/tags/**",
     });
     const acceptor = createTestAcceptor();
@@ -72,7 +75,7 @@ describe("filters using exclude option", () => {
   });
 
   it("filters using single exclude in array", async () => {
-    const resolver = createTestResolver("folder", {
+    const resolver = createResourcesResolver("folder", {
       exclude: ["data/*/recipe/**"],
     });
     const acceptor = createTestAcceptor();
@@ -87,7 +90,7 @@ describe("filters using exclude option", () => {
   });
 
   it("filters using multiple exclude", async () => {
-    const resolver = createTestResolver("folder", {
+    const resolver = createResourcesResolver("folder", {
       exclude: ["data/minecraft/recipe/**/*.json", "data/example/**"],
     });
     const acceptor = createTestAcceptor();
@@ -101,7 +104,7 @@ describe("filters using exclude option", () => {
   });
 
   it("filters using empty exclude array", async () => {
-    const resolver = createTestResolver("folder", { exclude: [] });
+    const resolver = createResourcesResolver("folder", { exclude: [] });
     const acceptor = createTestAcceptor();
 
     await resolver.extract(acceptor);
@@ -111,7 +114,7 @@ describe("filters using exclude option", () => {
 });
 
 it("ignores exclude if include is set", async () => {
-  const resolver = createTestResolver("folder", {
+  const resolver = createResourcesResolver("folder", {
     exclude: "data/*/tags/**",
     include: "data/minecraft/**/*.json",
   });

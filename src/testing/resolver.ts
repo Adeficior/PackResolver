@@ -1,17 +1,18 @@
-import { join } from "node:path";
-import type { ResolverOptions } from "../index.js";
-import { createMergedResolver } from "../index.js";
-
-const base = "test/resources";
+import type { Acceptable, Resolver } from "../index.js";
 
 export function createTestResolver(
-  folder: string,
-  options: Partial<ResolverOptions> = {},
-) {
-  const from = join(base, folder);
-  return createMergedResolver({
-    logger: false,
-    from,
-    ...options,
-  });
+  files: Record<string, Acceptable>,
+): Resolver {
+  return {
+    extract: async (acceptor) => {
+      await Promise.all(
+        Object.entries(files).map(([path, data]) =>
+          acceptor.accept(path, data),
+        ),
+      );
+
+      // TODO helper
+      if (acceptor.finalize) await acceptor.finalize();
+    },
+  };
 }

@@ -1,7 +1,7 @@
 import { beforeEach, describe, expect, it, mock } from "bun:test";
 import { createLogger, silentLogger } from "../src/index.js";
 import { createTestAcceptor } from "../src/testing/acceptor.js";
-import { createTestResolver } from "../src/testing/resolver.js";
+import createResourcesResolver from "./resources.js";
 
 /* eslint-disable no-console */
 
@@ -68,7 +68,9 @@ describe("tests regarding the logger", () => {
 it("does not log to console with silent option", async () => {
   console.log = mock();
 
-  const resolver = createTestResolver("folder", { logger: silentLogger() });
+  const resolver = createResourcesResolver("folder", {
+    logger: silentLogger(),
+  });
   const acceptor = createTestAcceptor();
 
   await resolver.extract(acceptor);

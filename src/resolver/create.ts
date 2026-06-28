@@ -2,29 +2,34 @@ import { existsSync, statSync } from "fs";
 import { extname, join, resolve } from "path";
 import type { PacksConfig } from "../config.js";
 import { getConfig } from "../config.js";
+import { filterResolver } from "../filter.js";
 import { createLogger, silentLogger, type Logger } from "../logger.js";
-import type { MergeStrategy } from "../merger/index.js";
-import { OverwriteStrategy } from "../merger/overwrite.js";
 import type Options from "../options.js";
 import type { FilterOptions } from "../options.js";
 import type { PathInfo } from "../util.js";
 import { arrayOrSelf, exists, listChildren, orderBy } from "../util.js";
-import ArchiveResolver from "./ArchiveResolver.js";
-import FolderResolver from "./FolderResolver.js";
-import type { Acceptor, Resolver, ResolverRunner } from "./index.js";
+import ArchiveResolver from "./archive.js";
+import FolderResolver from "./folder.js";
+import type { Resolver } from "./index.js";
 
 export interface ResolverInfo {
   resolver: Resolver;
   name: string;
 }
 
+function createUnfilteredResolver({ path, info }: Omit<PathInfo, "name">) {
+  if (info.isFile() && [".zip", ".jar"].includes(extname(path)))
+    return new ArchiveResolver(path);
+  if (info.isDirectory()) return new FolderResolver(path);
+  return null;
+}
+
 function tryCreateResolver(
-  { path, info }: Omit<PathInfo, "name">,
+  info: Omit<PathInfo, "name">,
   options: FilterOptions,
 ) {
-  if (info.isFile() && [".zip", ".jar"].includes(extname(path)))
-    return new ArchiveResolver(path, options);
-  if (info.isDirectory()) return new FolderResolver(path, options);
+  const unfiltered = createUnfilteredResolver(info);
+  if (unfiltered) return filterResolver(unfiltered, options);
   return null;
 }
 
@@ -68,45 +73,12 @@ function createResolversFor(
 
   return resolvers;
 }
-
-type MergeOptions = Omit<Options, "from"> & {
-  strategy?: MergeStrategy;
-};
-
-export function mergeResolvers(
-  resolvers: Array<Resolver | ResolverInfo>,
-  options: MergeOptions = {},
-): Resolver {
-  const runners = resolvers.map<ResolverRunner>(
-    (it) => (acceptor: Acceptor) => {
-      if ("extract" in it) return it.extract(acceptor);
-      loggerOf(options).info(it.name);
-      return it.resolver.extract(acceptor);
-    },
-  );
-
-  const strategy = options.strategy ?? new OverwriteStrategy();
-  const extract = strategy.merge(runners, loggerOf(options));
-  return { extract };
-}
-
 export function createResolvers(options: Options, config?: PacksConfig) {
   const resolvers = arrayOrSelf(options.from).flatMap((from) =>
     createResolversFor(options, from, config),
   );
   loggerOf(options).info(`Found ${resolvers.length} resource/data packs`);
   return resolvers;
-}
-
-export function createMergedResolver(
-  options: Options & MergeOptions,
-  config?: PacksConfig,
-) {
-  const resolvers = createResolvers(options, config);
-  return mergeResolvers(resolvers, {
-    ...options,
-    logger: loggerOf(options).group(),
-  });
 }
 
 function loggerOf(options: Pick<Options, "logger">): Logger {
