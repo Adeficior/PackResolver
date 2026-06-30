@@ -1,18 +1,35 @@
-import { existsSync, mkdirSync, writeFileSync } from "node:fs";
+import { exists, mkdir, readdir, unlink, writeFile } from "node:fs/promises";
 import { dirname, join } from "node:path";
 import type { Acceptor } from ".";
 
-// TODO options cleanup
-export function writeToFolder(path: string): Acceptor {
+export type FolderAcceptorOptions = {
+  clean?: boolean;
+};
+
+async function emptyDirSync(path: string) {
+  for (const file of await readdir(path)) {
+    await unlink(join(path, file));
+  }
+}
+
+export function writeToFolder(
+  path: string,
+  { clean = false }: FolderAcceptorOptions = {},
+): Acceptor {
+  let cleaned = !clean;
   return {
     accept: async (subPath, data) => {
-      const out = join(path, subPath);
-
-      if (!existsSync(dirname(out))) {
-        mkdirSync(dirname(out), { recursive: true });
+      if (!cleaned) {
+        cleaned = true;
+        await emptyDirSync(path);
       }
 
-      writeFileSync(out, await data);
+      const out = join(path, subPath);
+
+      if (!(await exists(dirname(out)))) {
+        await mkdir(dirname(out), { recursive: true });
+      }
+      await writeFile(out, await data);
     },
   };
 }

@@ -3,9 +3,14 @@ import type { Acceptor } from ".";
 import { afterAcceptor } from "../after";
 import { writeToFolder } from "./folder";
 
-// TODO options tempDir
-export function writeToArchive(path: string): Acceptor {
-  const tempDir = "tmp";
+export type ArchiveAcceptorOptions = {
+  tempDir?: string;
+};
+
+export function writeToArchive(
+  path: string,
+  { tempDir = "tmp" }: ArchiveAcceptorOptions = {},
+): Acceptor {
   const folder = writeToFolder(tempDir);
 
   return afterAcceptor(folder, async () => {
