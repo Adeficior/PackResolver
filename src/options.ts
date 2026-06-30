@@ -11,6 +11,6 @@ export interface ResolverOptions extends FilterOptions {
 }
 
 export interface CombinedResolverOptions extends FilterOptions {
-  from: string[];
+  from: string[] | string;
   logger?: Logger | false;
 }
