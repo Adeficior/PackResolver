@@ -12,5 +12,5 @@ export type * from "./options.js";
 export * from "./resolver/combine.js";
 export { createResolver, createResolvers } from "./resolver/create.js";
 export type { ResolverInfo } from "./resolver/create.js";
-export type * from "./resolver/index.js";
+export * from "./resolver/index.js";
 export * from "./util.js";

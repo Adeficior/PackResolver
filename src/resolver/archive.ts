@@ -1,12 +1,14 @@
 import ZIP from "node-stream-zip";
-import type { Acceptor } from "../acceptor/index.js";
+import type { DataConsumer } from "../acceptor/index.js";
 import promiseData from "./dataPromise.js";
-import { type Resolver } from "./index.js";
+import { AbstractResolver } from "./index.js";
 
-export default class ArchiveResolver implements Resolver {
-  constructor(private readonly archive: string) {}
+export default class ArchiveResolver extends AbstractResolver {
+  constructor(private readonly archive: string) {
+    super();
+  }
 
-  async extract(acceptor: Acceptor) {
+  async supply(acceptor: DataConsumer) {
     const zip = new ZIP.async({ file: this.archive });
 
     try {
@@ -14,15 +16,13 @@ export default class ArchiveResolver implements Resolver {
       await Promise.all(
         Object.values(entries).map(async (entry) => {
           if (entry.isFile) {
-            await acceptor.accept(
+            await acceptor(
               entry.name,
               promiseData(() => zip.entryData(entry)),
             );
           }
         }),
       );
-
-      if (acceptor.finalize) await acceptor.finalize();
     } catch (cause) {
       throw new Error(`unable to load ${this.archive}`, { cause });
     } finally {

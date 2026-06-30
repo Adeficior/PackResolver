@@ -1,5 +1,5 @@
 import { mock } from "bun:test";
-import type { Acceptor } from "../index.js";
+import type { Acceptor, DataConsumer } from "../index.js";
 
 export interface TestAcceptor extends Required<Acceptor> {
   at(path: string): string | null;
@@ -12,7 +12,7 @@ export interface TestAcceptor extends Required<Acceptor> {
 export function createTestAcceptor(): TestAcceptor {
   const received = new Map<string, string>();
 
-  const accept: TestAcceptor["accept"] = async (path, content) => {
+  const accept: DataConsumer = async (path, content) => {
     received.set(path, (await content).toString());
   };
 

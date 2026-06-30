@@ -1,4 +1,4 @@
-import type { Acceptor } from "./acceptor";
+import type { Acceptor, DataConsumer } from "./acceptor";
 
 export function afterFinalize<T>(
   acceptor: Acceptor<T>,
@@ -14,7 +14,7 @@ export function afterFinalize<T>(
 }
 
 export type DataTransformer<T> = (
-  ...args: Parameters<Acceptor<T>["accept"]>
+  ...args: Parameters<DataConsumer<T>>
 ) => Promise<T | false> | T | false;
 
 export function transformData<T>(

@@ -1,13 +1,15 @@
 export type Acceptable = string | NodeJS.ArrayBufferView;
 
+export type DataConsumer<T = Acceptable> = (
+  path: string,
+  content: PromiseLike<T>,
+) => void | false | Promise<void | false>;
+
 export interface Acceptor<T = Acceptable> {
-  accept(
-    path: string,
-    content: PromiseLike<T>,
-  ): void | false | Promise<void | false>;
+  accept: DataConsumer<T>;
   finalize?: () => void | Promise<void>;
 }
 
-export function simpleAcceptor(accept: Acceptor["accept"]): Acceptor {
+export function simpleAcceptor(accept: DataConsumer): Acceptor {
   return { accept };
 }

@@ -1,21 +1,23 @@
 import { readFileSync } from "fs";
 import { join } from "path/posix";
-import type { Acceptor } from "../acceptor/index.js";
+import type { DataConsumer } from "../acceptor/index.js";
 import { listChildren } from "../util.js";
 import promiseData from "./dataPromise.js";
-import type { Resolver } from "./index.js";
+import { AbstractResolver } from "./index.js";
 
-export default class FolderResolver implements Resolver {
-  constructor(private readonly folder: string) {}
+export default class FolderResolver extends AbstractResolver {
+  constructor(private readonly folder: string) {
+    super();
+  }
 
-  private async recursiveExtract(acceptor: Acceptor, path = ".") {
+  private async recursiveExtract(acceptor: DataConsumer, path = ".") {
     const children = listChildren(join(this.folder, path));
 
     const files = children.filter((it) => it.info.isFile());
     await Promise.all(
       files.map(async (it) => {
         const relative = join(path, it.name);
-        await acceptor.accept(
+        await acceptor(
           relative,
           promiseData(async () => readFileSync(it.path)),
         );
@@ -31,8 +33,7 @@ export default class FolderResolver implements Resolver {
     );
   }
 
-  async extract(acceptor: Acceptor) {
+  async supply(acceptor: DataConsumer) {
     await this.recursiveExtract(acceptor);
-    if (acceptor.finalize) await acceptor.finalize();
   }
 }
