@@ -1,5 +1,4 @@
 import type { Acceptor } from "./acceptor";
-import promiseData from "./resolver/dataPromise";
 
 export function afterFinalize<T>(
   acceptor: Acceptor<T>,
@@ -24,10 +23,8 @@ export function transformData<T>(
 ): Acceptor<T> {
   return {
     accept: async (path, data, ...args) => {
-      const transformed = promiseData(async () =>
-        transform(path, data, ...args),
-      );
-      return acceptor.accept(path, transformed, ...args);
+      const transformed = await transform(path, data, ...args);
+      return acceptor.accept(path, Promise.resolve(transformed), ...args);
     },
     finalize: acceptor.finalize,
   };
