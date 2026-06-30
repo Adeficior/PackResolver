@@ -5,7 +5,7 @@ export function afterFinalize<T>(
   finalize: NonNullable<Acceptor<T>["finalize"]>,
 ): Acceptor<T> {
   return {
-    accept: acceptor.accept,
+    accept: acceptor.accept.bind(acceptor),
     finalize: async () => {
       if (acceptor.finalize) await acceptor.finalize();
       await finalize();
@@ -27,6 +27,6 @@ export function transformData<T>(
       if (transformed === false) return false;
       return acceptor.accept(path, Promise.resolve(transformed), ...args);
     },
-    finalize: acceptor.finalize,
+    finalize: acceptor.finalize?.bind(acceptor),
   };
 }
