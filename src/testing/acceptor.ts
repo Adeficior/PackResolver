@@ -11,8 +11,8 @@ export interface TestAcceptor extends Acceptor {
 export function createTestAcceptor(): TestAcceptor {
   const received = new Map<string, string>();
 
-  const accept: TestAcceptor["accept"] = (path, content) => {
-    received.set(path, content.toString());
+  const accept: TestAcceptor["accept"] = async (path, content) => {
+    received.set(path, (await content).toString());
   };
 
   const paths: TestAcceptor["paths"] = () => [...received.keys()].sort();

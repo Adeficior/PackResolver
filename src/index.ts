@@ -1,6 +1,6 @@
 export * from "./acceptor/archive.js";
 export * from "./acceptor/folder.js";
-export type * from "./acceptor/index.js";
+export * from "./acceptor/index.js";
 export type { PacksConfig } from "./config.js";
 export { createFilter } from "./filter.js";
 export * from "./logger.js";

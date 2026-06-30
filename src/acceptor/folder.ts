@@ -5,14 +5,14 @@ import type { Acceptor } from ".";
 // TODO options cleanup
 export function writeToFolder(path: string): Acceptor {
   return {
-    accept: (subPath, data) => {
+    accept: async (subPath, data) => {
       const out = join(path, subPath);
 
       if (!existsSync(dirname(out))) {
         mkdirSync(dirname(out), { recursive: true });
       }
 
-      writeFileSync(out, data);
+      writeFileSync(out, await data);
     },
   };
 }

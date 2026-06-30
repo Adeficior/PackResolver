@@ -1,32 +1,33 @@
-import type { MinimatchOptions } from "minimatch";
 import { minimatch } from "minimatch";
-import type { Acceptor } from "./acceptor/index.js";
+import type { Acceptable, Acceptor } from "./acceptor/index.js";
 import type { FilterOptions } from "./options.js";
 import type { Resolver, ResolverRunner } from "./resolver/index.js";
 import { arrayOrSelf } from "./util.js";
 
-export function createFilter(options: FilterOptions) {
+type FilterFunction = (path: string, data: PromiseLike<Acceptable>) => boolean;
+
+export function createFilter(options: FilterOptions): FilterFunction {
   const include = arrayOrSelf(options.include);
   const exclude = arrayOrSelf(options.exclude);
-  return (value: string, options: MinimatchOptions = {}) => {
+  return (path) => {
     if (include?.length)
-      return include.some((pattern) => minimatch(value, pattern, options));
+      return include.some((pattern) => minimatch(path, pattern));
 
-    return !exclude.some((pattern) => minimatch(value, pattern, { dot: true }));
+    return !exclude.some((pattern) => minimatch(path, pattern, { dot: true }));
   };
 }
 
 export function filterAcceptor(
   acceptor: Acceptor,
-  options: FilterOptions | ((path: string) => boolean),
+  options: FilterOptions | FilterFunction,
 ): Acceptor {
   const filter =
     typeof options === "function" ? options : createFilter(options);
 
   return {
-    accept: (path, ...args) => {
-      if (!filter(path)) return false;
-      return acceptor.accept(path, ...args);
+    accept: (path, data, ...args) => {
+      if (!filter(path, data)) return false;
+      return acceptor.accept(path, data, ...args);
     },
     finalize: acceptor.finalize,
   };

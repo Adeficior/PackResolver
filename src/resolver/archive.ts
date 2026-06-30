@@ -1,5 +1,6 @@
 import ZIP from "node-stream-zip";
 import type { Acceptor } from "../acceptor/index.js";
+import promiseData from "./dataPromise.js";
 import { type Resolver } from "./index.js";
 
 export default class ArchiveResolver implements Resolver {
@@ -13,7 +14,10 @@ export default class ArchiveResolver implements Resolver {
       await Promise.all(
         Object.values(entries).map(async (entry) => {
           if (entry.isFile) {
-            await acceptor.accept(entry.name, await zip.entryData(entry));
+            await acceptor.accept(
+              entry.name,
+              promiseData(() => zip.entryData(entry)),
+            );
           }
         }),
       );

@@ -2,6 +2,7 @@ import { readFileSync } from "fs";
 import { join } from "path/posix";
 import type { Acceptor } from "../acceptor/index.js";
 import { listChildren } from "../util.js";
+import promiseData from "./dataPromise.js";
 import type { Resolver } from "./index.js";
 
 export default class FolderResolver implements Resolver {
@@ -12,17 +13,22 @@ export default class FolderResolver implements Resolver {
 
     const files = children.filter((it) => it.info.isFile());
     await Promise.all(
-      files.map((it) => {
+      files.map(async (it) => {
         const relative = join(path, it.name);
-        acceptor.accept(relative, readFileSync(it.path));
+        await acceptor.accept(
+          relative,
+          promiseData(async () => readFileSync(it.path)),
+        );
       }),
     );
 
     const folders = children.filter((it) => it.info.isDirectory());
-    folders.forEach((it) => {
-      const relative = join(path, it.name);
-      this.recursiveExtract(acceptor, relative);
-    });
+    await Promise.all(
+      folders.map(async (it) => {
+        const relative = join(path, it.name);
+        await this.recursiveExtract(acceptor, relative);
+      }),
+    );
   }
 
   async extract(acceptor: Acceptor) {
