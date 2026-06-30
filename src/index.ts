@@ -8,11 +8,8 @@ export { createFilter } from "./filter.js";
 export * from "./logger.js";
 export * from "./middleware.js";
 export type { FilterOptions, default as ResolverOptions } from "./options.js";
-export {
-  createResolver,
-  createResolvers,
-  loggerOf,
-} from "./resolver/create.js";
+export type * from "./resolver/combine.js";
+export { createResolver, createResolvers } from "./resolver/create.js";
 export type { ResolverInfo } from "./resolver/create.js";
 export type * from "./resolver/index.js";
 export * from "./util.js";

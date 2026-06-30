@@ -1,6 +1,6 @@
 import { minimatch } from "minimatch";
 import type { Acceptor } from "./acceptor";
-import { exists } from "./util";
+import { exists, uniq } from "./util";
 
 export function distributedAcceptor<T>(
   patterns: Record<string, Acceptor<T>>,
@@ -17,7 +17,7 @@ export function distributedAcceptor<T>(
     },
     finalize: async () => {
       await Promise.all(
-        Object.values(patterns)
+        uniq(Object.values(patterns))
           .map((it) => it.finalize?.())
           .filter(exists),
       );

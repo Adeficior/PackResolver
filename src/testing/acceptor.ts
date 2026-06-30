@@ -1,6 +1,7 @@
+import { mock } from "bun:test";
 import type { Acceptor } from "../index.js";
 
-export interface TestAcceptor extends Acceptor {
+export interface TestAcceptor extends Required<Acceptor> {
   at(path: string): string | null;
 
   paths(): string[];
@@ -23,5 +24,7 @@ export function createTestAcceptor(): TestAcceptor {
     return raw && JSON.parse(raw);
   };
 
-  return { accept, paths, at, jsonAt };
+  const finalize: TestAcceptor["finalize"] = mock();
+
+  return { accept, paths, at, jsonAt, finalize };
 }
