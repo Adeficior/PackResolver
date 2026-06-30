@@ -1,4 +1,5 @@
 export * from "./acceptor/archive.js";
+export { createAcceptor } from "./acceptor/create.js";
 export * from "./acceptor/folder.js";
 export * from "./acceptor/index.js";
 export * from "./cache.js";
