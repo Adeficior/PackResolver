@@ -17,7 +17,7 @@ export function combineResolvers<T>(
   return {
     extract: async (acceptor) => {
       const withoutFinalize: Acceptor<T> = { accept: acceptor.accept };
-      if (options?.async !== false) {
+      if (options?.async) {
         await Promise.all(runners.map((run) => run(withoutFinalize)));
       } else {
         for (const run of runners) {
