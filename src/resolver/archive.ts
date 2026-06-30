@@ -1,7 +1,7 @@
 import ZIP from "node-stream-zip";
 import type { DataConsumer } from "../acceptor/index.js";
+import { AbstractResolver } from "./abstract.js";
 import promiseData from "./dataPromise.js";
-import { AbstractResolver } from "./index.js";
 
 export default class ArchiveResolver extends AbstractResolver {
   constructor(private readonly archive: string) {

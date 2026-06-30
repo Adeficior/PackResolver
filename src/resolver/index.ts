@@ -1,4 +1,5 @@
-import type { Acceptable, Acceptor, DataConsumer } from "../acceptor/index.js";
+import type { Acceptable, Acceptor } from "../acceptor/index.js";
+import { AbstractResolver } from "./abstract.js";
 
 export type ResolverRunner<T = Acceptable> = (
   acceptor: Acceptor<T>,
@@ -8,14 +9,12 @@ export interface Resolver<T = Acceptable> {
   extract: ResolverRunner<T>;
 }
 
-export abstract class AbstractResolver implements Resolver {
-  public readonly extract: ResolverRunner<Acceptable> = async ({
-    accept,
-    finalize,
-  }) => {
-    await this.supply(accept);
-    if (finalize) await finalize();
-  };
+class SimpleResolver extends AbstractResolver {
+  constructor(protected readonly supply: AbstractResolver["supply"]) {
+    super();
+  }
+}
 
-  protected abstract supply(acceptor: DataConsumer): Promise<void> | void;
+export function simpleResolver(supply: AbstractResolver["supply"]): Resolver {
+  return new SimpleResolver(supply);
 }

@@ -2,8 +2,8 @@ import { readFileSync } from "fs";
 import { join } from "path/posix";
 import type { DataConsumer } from "../acceptor/index.js";
 import { listChildren } from "../util.js";
+import { AbstractResolver } from "./abstract.js";
 import promiseData from "./dataPromise.js";
-import { AbstractResolver } from "./index.js";
 
 export default class FolderResolver extends AbstractResolver {
   constructor(private readonly folder: string) {
