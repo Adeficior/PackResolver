@@ -1,5 +1,6 @@
 import { minimatch } from "minimatch";
 import type { Acceptor } from "./acceptor/index.js";
+import { transformData } from "./middleware.js";
 import type { FilterOptions } from "./options.js";
 import type { Resolver, ResolverRunner } from "./resolver/index.js";
 import { arrayOrSelf } from "./util.js";
@@ -27,13 +28,10 @@ export function filterAcceptor<T>(
   const filter =
     typeof options === "function" ? options : createFilter(options);
 
-  return {
-    accept: async (path, data, ...args) => {
-      if (!(await filter(path, data))) return false;
-      return acceptor.accept(path, data, ...args);
-    },
-    finalize: acceptor.finalize,
-  };
+  return transformData(acceptor, async (path, data) => {
+    if (!(await filter(path, data))) return false;
+    return data;
+  });
 }
 
 export function filterResolver(

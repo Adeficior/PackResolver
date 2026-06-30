@@ -15,7 +15,7 @@ export function afterFinalize<T>(
 
 export type DataTransformer<T> = (
   ...args: Parameters<Acceptor<T>["accept"]>
-) => Promise<T> | T;
+) => Promise<T | false> | T | false;
 
 export function transformData<T>(
   acceptor: Acceptor<T>,
@@ -24,6 +24,7 @@ export function transformData<T>(
   return {
     accept: async (path, data, ...args) => {
       const transformed = await transform(path, data, ...args);
+      if (transformed === false) return false;
       return acceptor.accept(path, Promise.resolve(transformed), ...args);
     },
     finalize: acceptor.finalize,
