@@ -1,5 +1,5 @@
 import type { Resolver, ResolverRunner } from ".";
-import type { CombinedResolverOptions, ResolverOptions } from "..";
+import type { Acceptor, CombinedResolverOptions, ResolverOptions } from "..";
 import { createResolvers, loggerOf, type ResolverInfo } from "./create";
 
 export function combineResolvers<T>(
@@ -16,13 +16,16 @@ export function combineResolvers<T>(
 
   return {
     extract: async (acceptor) => {
+      const withoutFinalize: Acceptor<T> = { accept: acceptor.accept };
       if (options?.async !== false) {
-        await Promise.all(runners.map((run) => run(acceptor)));
+        await Promise.all(runners.map((run) => run(withoutFinalize)));
       } else {
         for (const run of runners) {
-          await run(acceptor);
+          await run(withoutFinalize);
         }
       }
+
+      if (acceptor.finalize) await acceptor.finalize();
     },
   };
 }
