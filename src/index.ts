@@ -7,7 +7,7 @@ export * from "./distribute.js";
 export { createFilter } from "./filter.js";
 export * from "./logger.js";
 export * from "./middleware.js";
-export type { FilterOptions, default as ResolverOptions } from "./options.js";
+export type * from "./options.js";
 export type * from "./resolver/combine.js";
 export { createResolver, createResolvers } from "./resolver/create.js";
 export type { ResolverInfo } from "./resolver/create.js";

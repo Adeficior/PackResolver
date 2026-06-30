@@ -5,7 +5,12 @@ export interface FilterOptions {
   include?: string | string[];
 }
 
-export default interface Options extends FilterOptions {
+export interface ResolverOptions extends FilterOptions {
   from: string;
+  logger?: Logger | false;
+}
+
+export interface CombinedResolverOptions extends FilterOptions {
+  from: string[];
   logger?: Logger | false;
 }

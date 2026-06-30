@@ -1,6 +1,6 @@
 import type { Resolver, ResolverRunner } from ".";
-import type { ResolverOptions } from "..";
-import { loggerOf, type ResolverInfo } from "./create";
+import type { CombinedResolverOptions, ResolverOptions } from "..";
+import { createResolvers, loggerOf, type ResolverInfo } from "./create";
 
 export function combineResolvers<T>(
   resolvers: ReadonlyArray<ResolverInfo<T> | Resolver<T> | ResolverRunner<T>>,
@@ -25,4 +25,9 @@ export function combineResolvers<T>(
       }
     },
   };
+}
+
+export function createCombinedResolver(options: CombinedResolverOptions) {
+  const resolvers = createResolvers(options);
+  return combineResolvers(resolvers, options);
 }

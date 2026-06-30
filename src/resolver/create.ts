@@ -5,8 +5,11 @@ import type { PacksConfig } from "../config.js";
 import { getConfig } from "../config.js";
 import { filterResolver } from "../filter.js";
 import { createLogger, silentLogger, type Logger } from "../logger.js";
-import type Options from "../options.js";
-import type { FilterOptions } from "../options.js";
+import type {
+  CombinedResolverOptions,
+  FilterOptions,
+  ResolverOptions,
+} from "../options.js";
 import type { PathInfo } from "../util.js";
 import { arrayOrSelf, exists, listChildren, orderBy } from "../util.js";
 import ArchiveResolver from "./archive.js";
@@ -34,7 +37,7 @@ function tryCreateResolver(
   return null;
 }
 
-export function createResolver(options: Options) {
+export function createResolver(options: ResolverOptions) {
   const path = options.from;
   const info = statSync(path);
   const resolver = tryCreateResolver({ path, info }, options);
@@ -47,7 +50,7 @@ export function createResolver(options: Options) {
 }
 
 function createResolversFor(
-  options: Omit<Options, "from">,
+  options: Omit<ResolverOptions, "from">,
   from: string,
   config: PacksConfig = getConfig(from),
 ): ResolverInfo[] {
@@ -74,7 +77,10 @@ function createResolversFor(
 
   return resolvers;
 }
-export function createResolvers(options: Options, config?: PacksConfig) {
+export function createResolvers(
+  options: CombinedResolverOptions,
+  config?: PacksConfig,
+) {
   const resolvers = arrayOrSelf(options.from).flatMap((from) =>
     createResolversFor(options, from, config),
   );
@@ -82,7 +88,7 @@ export function createResolvers(options: Options, config?: PacksConfig) {
   return resolvers;
 }
 
-export function loggerOf(options: Pick<Options, "logger">): Logger {
+export function loggerOf(options: Pick<ResolverOptions, "logger">): Logger {
   if (options.logger === false) return silentLogger();
   return options.logger ?? createLogger();
 }
