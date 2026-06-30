@@ -12,8 +12,8 @@ import ArchiveResolver from "./archive.js";
 import FolderResolver from "./folder.js";
 import type { Resolver } from "./index.js";
 
-export interface ResolverInfo {
-  resolver: Resolver;
+export interface ResolverInfo<T> {
+  resolver: Resolver<T>;
   name: string;
 }
 
