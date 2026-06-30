@@ -1,7 +1,10 @@
 export * from "./acceptor/archive.js";
 export * from "./acceptor/folder.js";
 export * from "./acceptor/index.js";
+export * from "./after.js";
+export * from "./cache.js";
 export type { PacksConfig } from "./config.js";
+export * from "./distribute.js";
 export { createFilter } from "./filter.js";
 export * from "./logger.js";
 export type { FilterOptions, default as ResolverOptions } from "./options.js";
