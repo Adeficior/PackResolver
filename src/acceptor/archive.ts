@@ -1,6 +1,6 @@
 import { zip } from "zip-a-folder";
 import type { Acceptor } from ".";
-import { afterAcceptor } from "../after";
+import { afterFinalize } from "../middleware";
 import createTempDir, { type TempDir } from "../temp";
 import { writeToFolder } from "./folder";
 
@@ -18,7 +18,7 @@ export function writeToArchive(
 
   const folder = writeToFolder(tempDir.path);
 
-  return afterAcceptor(folder, async () => {
+  return afterFinalize(folder, async () => {
     if (folder.finalize) await folder.finalize();
     await zip(tempDir.path, path);
     tempDir.removeCallback?.();

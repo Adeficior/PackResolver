@@ -1,8 +1,8 @@
 import crypto from "node:crypto";
 import { existsSync, readFileSync } from "node:fs";
 import type { Acceptable, Acceptor } from "./acceptor";
-import { afterAcceptor } from "./after";
 import { filterAcceptor } from "./filter";
+import { afterFinalize } from "./middleware";
 
 function parseCacheFile(path: string) {
   const map = new Map<string, string>();
@@ -50,7 +50,7 @@ export function cachedAcceptor(
     return lastCache.get(path) !== hash;
   });
 
-  return afterAcceptor(filtered, async () => {
+  return afterFinalize(filtered, async () => {
     if (cleanup) await cleanup(orphans());
   });
 }
