@@ -1,6 +1,7 @@
 import { zip } from "zip-a-folder";
 import type { Acceptor } from ".";
 import { afterAcceptor } from "../after";
+import createTempDir, { type TempDir } from "../temp";
 import { writeToFolder } from "./folder";
 
 export type ArchiveAcceptorOptions = {
@@ -9,12 +10,17 @@ export type ArchiveAcceptorOptions = {
 
 export function writeToArchive(
   path: string,
-  { tempDir = "tmp" }: ArchiveAcceptorOptions = {},
+  options: ArchiveAcceptorOptions = {},
 ): Acceptor {
-  const folder = writeToFolder(tempDir);
+  const tempDir: TempDir = options.tempDir
+    ? { path: options.tempDir }
+    : createTempDir();
+
+  const folder = writeToFolder(tempDir.path);
 
   return afterAcceptor(folder, async () => {
     if (folder.finalize) await folder.finalize();
-    await zip(tempDir, path);
+    await zip(tempDir.path, path);
+    tempDir.removeCallback?.();
   });
 }
