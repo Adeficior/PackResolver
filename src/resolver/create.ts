@@ -1,5 +1,6 @@
 import { existsSync, statSync } from "fs";
 import { extname, join, resolve } from "path";
+import type { Acceptable } from "../acceptor/index.js";
 import type { PacksConfig } from "../config.js";
 import { getConfig } from "../config.js";
 import { filterResolver } from "../filter.js";
@@ -12,7 +13,7 @@ import ArchiveResolver from "./archive.js";
 import FolderResolver from "./folder.js";
 import type { Resolver } from "./index.js";
 
-export interface ResolverInfo<T> {
+export interface ResolverInfo<T = Acceptable> {
   resolver: Resolver<T>;
   name: string;
 }
@@ -81,7 +82,7 @@ export function createResolvers(options: Options, config?: PacksConfig) {
   return resolvers;
 }
 
-function loggerOf(options: Pick<Options, "logger">): Logger {
+export function loggerOf(options: Pick<Options, "logger">): Logger {
   if (options.logger === false) return silentLogger();
   return options.logger ?? createLogger();
 }
