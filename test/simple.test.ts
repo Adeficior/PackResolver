@@ -1,5 +1,10 @@
 import { describe, expect, it, mock } from "bun:test";
-import { combineResolvers, distributedAcceptor, type Acceptor } from "../src";
+import {
+  afterFinalize,
+  combineResolvers,
+  distributedAcceptor,
+  type Acceptor,
+} from "../src";
 import { filterAcceptor, filterResolver } from "../src/filter";
 import { createTestResolver } from "../src/testing";
 
@@ -20,23 +25,34 @@ describe("general tests regarding the acceptor/resolver flows", () => {
   it("keeps this context", async () => {
     const acceptor = new AcceptorClass();
 
+    const otherFinalize = mock();
+
     const resolver = filterResolver(
-      combineResolvers([
-        createTestResolver({
-          "path/one": "data",
-          "path/two": "data",
-        }),
-      ]),
+      combineResolvers(
+        [
+          combineResolvers([
+            createTestResolver({
+              "path/one": "data",
+              "path/two": "data",
+            }),
+          ]),
+        ],
+        { async: true },
+      ),
       () => true,
     );
 
     await resolver.extract(
-      distributedAcceptor({
-        "**": filterAcceptor(acceptor, () => true),
-      }),
+      afterFinalize(
+        distributedAcceptor({
+          "**": filterAcceptor(acceptor, () => true),
+        }),
+        otherFinalize,
+      ),
     );
 
     expect(acceptor.finalizeMock).toBeCalledTimes(1);
+    expect(otherFinalize).toBeCalledTimes(1);
     expect(acceptor.acceptMock).toHaveBeenCalledWith("path/one");
     expect(acceptor.acceptMock).toHaveBeenCalledWith("path/two");
   });

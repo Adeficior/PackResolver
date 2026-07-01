@@ -6,7 +6,7 @@ export function distributedAcceptor<T>(
   patterns: Record<string, Acceptor<T>>,
 ): Acceptor<T> {
   return {
-    accept: async (path, data, ...args) => {
+    accept: (path, data, ...args) => {
       const matching = Object.entries(patterns).find(([pattern]) =>
         minimatch(path, pattern),
       )?.[1];
