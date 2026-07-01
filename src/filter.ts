@@ -34,11 +34,11 @@ export function filterAcceptor<T>(
   });
 }
 
-export function filterResolver(
-  resolver: Resolver,
-  options: FilterOptions,
-): Resolver {
-  const extract: ResolverRunner = (acceptor) => {
+export function filterResolver<T>(
+  resolver: Resolver<T>,
+  options: FilterOptions | FilterFunction<T>,
+): Resolver<T> {
+  const extract: ResolverRunner<T> = (acceptor) => {
     const filtered = filterAcceptor(acceptor, options);
     return resolver.extract(filtered);
   };
