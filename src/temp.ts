@@ -1,4 +1,4 @@
-import { mkdtempSync, rmdirSync } from "node:fs";
+import { mkdtempSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 
@@ -9,6 +9,6 @@ export type TempDir = {
 
 export default function createTempDir() {
   const path = mkdtempSync(join(tmpdir(), "merger-"));
-  const removeCallback = () => rmdirSync(path);
+  const removeCallback = () => rmSync(path, { recursive: true, force: true });
   return { path, removeCallback };
 }
