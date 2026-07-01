@@ -1,3 +1,4 @@
+import { exists } from "node:fs/promises";
 import { zip } from "zip-a-folder";
 import type { Acceptor } from ".";
 import { afterFinalize } from "../middleware";
@@ -20,7 +21,9 @@ export function writeToArchive(
 
   return afterFinalize(folder, async () => {
     if (folder.finalize) await folder.finalize();
-    await zip(tempDir.path, path);
+    if (await exists(tempDir.path)) {
+      await zip(tempDir.path, path);
+    }
     tempDir.removeCallback?.();
   });
 }
