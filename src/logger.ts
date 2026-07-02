@@ -8,6 +8,8 @@ export type Logger = {
   error: LogMethod;
   warn: LogMethod;
   info: LogMethod;
+  debug: LogMethod;
+  trace: LogMethod;
 };
 
 export type LoggerOptions = {
@@ -29,6 +31,8 @@ export function createLogger(options: LoggerOptions = {}): Logger {
     info: styled(console.info, "green", options),
     warn: styled(console.warn, "yellow", options),
     error: styled(console.error, "red", options),
+    debug: styled(console.debug, "blue", options),
+    trace: styled(console.trace, "red", options),
     /* eslint-enable no-console */
   };
 }
@@ -39,6 +43,8 @@ export function silentLogger(): Logger {
     info: silent,
     warn: silent,
     error: silent,
+    debug: silent,
+    trace: silent,
   };
 }
 
@@ -53,5 +59,9 @@ export function extendLoggerContext(
       logger.error(message, { ...context, ...additional }),
     warn: (message, context = {}) =>
       logger.warn(message, { ...context, ...additional }),
+    debug: (message, context = {}) =>
+      logger.debug(message, { ...context, ...additional }),
+    trace: (message, context = {}) =>
+      logger.trace(message, { ...context, ...additional }),
   };
 }
