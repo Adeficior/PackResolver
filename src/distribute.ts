@@ -2,10 +2,10 @@ import { minimatch } from "minimatch";
 import type { Acceptor } from "./acceptor";
 import { exists, uniq } from "./util";
 
-export function distributedAcceptor<T>(
-  patterns: Record<string, Acceptor<T>>,
-  fallback?: Acceptor<T>,
-): Acceptor<T> {
+export function distributedAcceptor<Data, Args extends unknown[]>(
+  patterns: Record<string, Acceptor<Data, Args>>,
+  fallback?: Acceptor<Data, Args>,
+): Acceptor<Data, Args> {
   const finalizes = uniq([...Object.values(patterns), fallback])
     .map((it) => it?.finalize?.bind(it))
     .filter(exists);
@@ -22,8 +22,8 @@ export function distributedAcceptor<T>(
 
       return matching.accept(path, data, ...args);
     },
-    finalize: async () => {
-      await Promise.all(finalizes.map((it) => it()));
+    finalize: async (...args) => {
+      await Promise.all(finalizes.map((it) => it(...args)));
     },
   };
 }

@@ -1,10 +1,14 @@
 import ZIP from "node-stream-zip";
-import type { DataConsumer } from "../acceptor/index.js";
+import type { Acceptable, DataConsumer } from "../acceptor/index.js";
+import type { Logger } from "../logger.js";
 import { AbstractResolver } from "./abstract.js";
 import promiseData from "./dataPromise.js";
 
-export default class ArchiveResolver extends AbstractResolver {
-  constructor(private readonly archive: string) {
+export default class ArchiveResolver extends AbstractResolver<Acceptable> {
+  constructor(
+    private readonly archive: string,
+    private readonly logger: Logger,
+  ) {
     super();
   }
 
@@ -19,6 +23,7 @@ export default class ArchiveResolver extends AbstractResolver {
             await acceptor(
               entry.name,
               promiseData(() => zip.entryData(entry)),
+              this.logger,
             );
           }
         }),

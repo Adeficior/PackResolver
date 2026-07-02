@@ -1,10 +1,10 @@
 import { join } from "node:path";
 import { createResolver } from "../src";
-import type Options from "../src/options";
+import type { ResolverOptions } from "../src/options";
 
 export default function createResourcesResolver(
   path: string,
-  options: Omit<Options, "from"> = {},
+  options: Omit<ResolverOptions, "from"> = {},
 ) {
   return createResolver({
     ...options,

@@ -21,26 +21,26 @@ export function createFilter<T>(options: FilterOptions): FilterFunction<T> {
   };
 }
 
-export function filterAcceptor<T>(
-  acceptor: Acceptor<T>,
-  options: FilterOptions | FilterFunction<T>,
-): Acceptor<T> {
+export function filterAcceptor<Data, Args extends unknown[]>(
+  acceptor: Acceptor<Data, Args>,
+  options: FilterOptions | FilterFunction<Data>,
+): Acceptor<Data, Args> {
   const filter =
     typeof options === "function" ? options : createFilter(options);
 
-  return transformData(acceptor, async (path, data) => {
+  return transformData(acceptor, async (path, data, ..._args) => {
     if (!(await filter(path, data))) return false;
     return data;
   });
 }
 
-export function filterResolver<T>(
-  resolver: Resolver<T>,
-  options: FilterOptions | FilterFunction<T>,
-): Resolver<T> {
-  const extract: ResolverRunner<T> = (acceptor) => {
+export function filterResolver<Data, Args extends unknown[]>(
+  resolver: Resolver<Data, Args>,
+  options: FilterOptions | FilterFunction<Data>,
+): Resolver<Data, Args> {
+  const extract: ResolverRunner<Data, Args> = (acceptor, ...args) => {
     const filtered = filterAcceptor(acceptor, options);
-    return resolver.extract(filtered);
+    return resolver.extract(filtered, ...args);
   };
   return { extract };
 }

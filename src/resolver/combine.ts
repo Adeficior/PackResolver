@@ -2,32 +2,37 @@ import type { Resolver, ResolverRunner } from ".";
 import type { Acceptor, CombinedResolverOptions, ResolverOptions } from "..";
 import { createResolvers, loggerOf, type ResolverInfo } from "./create";
 
-export function combineResolvers<T>(
-  resolvers: ReadonlyArray<ResolverInfo<T> | Resolver<T> | ResolverRunner<T>>,
+export function combineResolvers<Data, Args extends unknown[]>(
+  resolvers: ReadonlyArray<
+    ResolverInfo<Data, Args> | Resolver<Data, Args> | ResolverRunner<Data, Args>
+  >,
   options: Pick<ResolverOptions, "logger"> & { async?: boolean } = {},
-): Resolver<T> {
+): Resolver<Data, Args> {
   const logger = loggerOf(options);
-  const runners: ResolverRunner<T>[] = resolvers.map((it) => (acceptor) => {
-    if (typeof it === "function") return it(acceptor);
-    if ("extract" in it) return it.extract(acceptor);
-    logger.info(it.name);
-    return it.resolver.extract(acceptor);
-  });
+  const runners: ResolverRunner<Data, Args>[] = resolvers.map(
+    (it) =>
+      (acceptor, ...args) => {
+        if (typeof it === "function") return it(acceptor, ...args);
+        if ("extract" in it) return it.extract(acceptor, ...args);
+        logger.info(it.name);
+        return it.resolver.extract(acceptor, ...args);
+      },
+  );
 
   return {
-    extract: async (acceptor) => {
-      const withoutFinalize: Acceptor<T> = {
+    extract: async (acceptor, ...args) => {
+      const withoutFinalize: Acceptor<Data, Args> = {
         accept: acceptor.accept.bind(acceptor),
       };
       if (options?.async) {
-        await Promise.all(runners.map((run) => run(withoutFinalize)));
+        await Promise.all(runners.map((run) => run(withoutFinalize, ...args)));
       } else {
         for (const run of runners) {
-          await run(withoutFinalize);
+          await run(withoutFinalize, ...args);
         }
       }
 
-      if (acceptor.finalize) await acceptor.finalize();
+      if (acceptor.finalize) await acceptor.finalize(...args);
     },
   };
 }

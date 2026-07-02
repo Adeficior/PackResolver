@@ -1,15 +1,21 @@
+import type { Logger } from "../logger";
+
 export type Acceptable = string | NodeJS.ArrayBufferView;
 
-export type DataConsumer<T = Acceptable> = (
+export type DataConsumer<Data = Acceptable, Args extends unknown[] = []> = (
   path: string,
-  content: PromiseLike<T>,
+  content: PromiseLike<Data>,
+  logger: Logger,
+  ...args: Args
 ) => void | false | Promise<void | false>;
 
-export interface Acceptor<T = Acceptable> {
-  accept: DataConsumer<T>;
-  finalize?: () => void | Promise<void>;
+export interface Acceptor<Data = Acceptable, Args extends unknown[] = []> {
+  accept: DataConsumer<Data, Args>;
+  finalize?: (...args: Args) => void | Promise<void>;
 }
 
-export function simpleAcceptor(accept: DataConsumer): Acceptor {
+export function simpleAcceptor<Data = Acceptable, Args extends unknown[] = []>(
+  accept: DataConsumer<Data, Args>,
+): Acceptor<Data, Args> {
   return { accept };
 }

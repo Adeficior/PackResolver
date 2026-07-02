@@ -31,11 +31,11 @@ function createHash(content: Acceptable): string {
   return hash.read();
 }
 
-export function cachedAcceptor(
-  acceptor: Acceptor,
+export function cachedAcceptor<Args extends unknown[] = []>(
+  acceptor: Acceptor<Acceptable, Args>,
   cacheFile: string,
   cleanup?: (orphans: string[]) => Promise<void>,
-): Acceptor {
+): Acceptor<Acceptable, Args> {
   const lastCache = parseCacheFile(cacheFile);
   const nextCache = new Map<string, string>();
 

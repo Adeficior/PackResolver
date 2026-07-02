@@ -1,20 +1,23 @@
 import type { Acceptable, Acceptor } from "../acceptor/index.js";
 import { AbstractResolver } from "./abstract.js";
 
-export type ResolverRunner<T = Acceptable> = (
-  acceptor: Acceptor<T>,
+export type ResolverRunner<Data = Acceptable, Args extends unknown[] = []> = (
+  acceptor: Acceptor<Data, Args>,
+  ...args: Args
 ) => Promise<void> | void;
 
-export interface Resolver<T = Acceptable> {
-  extract: ResolverRunner<T>;
+export interface Resolver<Data = Acceptable, Args extends unknown[] = []> {
+  extract: ResolverRunner<Data, Args>;
 }
 
-class SimpleResolver extends AbstractResolver {
-  constructor(protected readonly supply: AbstractResolver["supply"]) {
+class SimpleResolver<Data> extends AbstractResolver<Data> {
+  constructor(protected readonly supply: AbstractResolver<Data>["supply"]) {
     super();
   }
 }
 
-export function simpleResolver(supply: AbstractResolver["supply"]): Resolver {
+export function simpleResolver<Data = Acceptable>(
+  supply: AbstractResolver<Data>["supply"],
+): Resolver<Data> {
   return new SimpleResolver(supply);
 }

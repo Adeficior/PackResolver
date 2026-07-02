@@ -5,34 +5,33 @@ import type { PacksConfig } from "../config.js";
 import { getConfig } from "../config.js";
 import { filterResolver } from "../filter.js";
 import { createLogger, silentLogger, type Logger } from "../logger.js";
-import type {
-  CombinedResolverOptions,
-  FilterOptions,
-  ResolverOptions,
-} from "../options.js";
+import type { CombinedResolverOptions, ResolverOptions } from "../options.js";
 import type { PathInfo } from "../util.js";
 import { arrayOrSelf, exists, listChildren, orderBy } from "../util.js";
 import ArchiveResolver from "./archive.js";
 import FolderResolver from "./folder.js";
 import type { Resolver } from "./index.js";
 
-export interface ResolverInfo<T = Acceptable> {
-  resolver: Resolver<T>;
+export interface ResolverInfo<Data = Acceptable, Args extends unknown[] = []> {
+  resolver: Resolver<Data, Args>;
   name: string;
 }
 
-function createUnfilteredResolver({ path, info }: Omit<PathInfo, "name">) {
+function createUnfilteredResolver(
+  { path, info }: Omit<PathInfo, "name">,
+  logger: Logger,
+) {
   if (info.isFile() && [".zip", ".jar"].includes(extname(path)))
-    return new ArchiveResolver(path);
-  if (info.isDirectory()) return new FolderResolver(path);
+    return new ArchiveResolver(path, logger);
+  if (info.isDirectory()) return new FolderResolver(path, logger);
   return null;
 }
 
 function tryCreateResolver(
   info: Omit<PathInfo, "name">,
-  options: FilterOptions,
+  options: Omit<ResolverOptions, "from">,
 ) {
-  const unfiltered = createUnfilteredResolver(info);
+  const unfiltered = createUnfilteredResolver(info, loggerOf(options));
   if (unfiltered) return filterResolver(unfiltered, options);
   return null;
 }
