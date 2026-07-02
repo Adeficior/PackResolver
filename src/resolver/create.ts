@@ -3,43 +3,56 @@ import { extname, join, resolve } from "path";
 import type { Acceptable } from "../acceptor/index.js";
 import type { PacksConfig } from "../config.js";
 import { getConfig } from "../config.js";
+import { type BaseContext, type ContextLike } from "../context.js";
 import { filterResolver } from "../filter.js";
 import { createLogger, silentLogger, type Logger } from "../logger.js";
-import type { CombinedResolverOptions, ResolverOptions } from "../options.js";
+import type {
+  CombinedResolverOptions,
+  FilterOptions,
+  ResolverOptions,
+} from "../options.js";
 import type { PathInfo } from "../util.js";
 import { arrayOrSelf, exists, listChildren, orderBy } from "../util.js";
 import ArchiveResolver from "./archive.js";
 import FolderResolver from "./folder.js";
 import type { Resolver } from "./index.js";
 
-export interface ResolverInfo<Data = Acceptable, Args extends unknown[] = []> {
-  resolver: Resolver<Data, Args>;
+export interface ResolverInfo<
+  Data = Acceptable,
+  Context extends ContextLike = BaseContext,
+> {
+  resolver: Resolver<Data, Context>;
   name: string;
 }
 
-function createUnfilteredResolver(
+function createUnfilteredResolver<Context extends ContextLike>(
   { path, info }: Omit<PathInfo, "name">,
-  logger: Logger,
+  context: Context,
 ) {
   if (info.isFile() && [".zip", ".jar"].includes(extname(path)))
-    return new ArchiveResolver(path, logger);
-  if (info.isDirectory()) return new FolderResolver(path, logger);
+    return new ArchiveResolver(path, context);
+  if (info.isDirectory()) return new FolderResolver(path, context);
   return null;
 }
 
-function tryCreateResolver(
+function tryCreateResolver<Context extends ContextLike>(
   info: Omit<PathInfo, "name">,
-  options: Omit<ResolverOptions, "from">,
+  options: FilterOptions,
+  context: Context,
 ) {
-  const unfiltered = createUnfilteredResolver(info, loggerOf(options));
+  const unfiltered = createUnfilteredResolver<Context>(info, context);
   if (unfiltered) return filterResolver(unfiltered, options);
   return null;
 }
 
-export function createResolver(options: ResolverOptions) {
+export function createResolver(
+  options: ResolverOptions,
+): Resolver<Acceptable, BaseContext> {
   const path = options.from;
   const info = statSync(path);
-  const resolver = tryCreateResolver({ path, info }, options);
+  const resolver = tryCreateResolver({ path, info }, options, {
+    logger: loggerOf(options),
+  });
 
   if (!resolver) {
     throw new Error(`unable to create resolver for ${path}`);
@@ -48,11 +61,12 @@ export function createResolver(options: ResolverOptions) {
   return resolver;
 }
 
-function createResolversFor(
+function createResolversFor<Context extends ContextLike>(
   options: Omit<ResolverOptions, "from">,
   from: string,
+  context: Context,
   config: PacksConfig = getConfig(from),
-): ResolverInfo[] {
+): Resolver<Acceptable, Context & { source: string }>[] {
   if (!existsSync(from)) {
     throw new Error(`input directory not found: ${resolve(from)}`);
   }
@@ -62,14 +76,16 @@ function createResolversFor(
     .filter((it) => !it.config?.disabled);
 
   const resolvers = orderBy(packs, (it) => it.config?.priority ?? 0)
-    .flatMap(({ config, name, path, info }) => {
+    .flatMap(({ config, path, info }) => {
       const paths = arrayOrSelf(config?.paths ?? ".");
       return paths.map((suffix) => {
         const resolver = tryCreateResolver(
           { path: join(path, suffix), info },
           options,
+          context,
         );
-        return resolver && { resolver, name };
+
+        return resolver;
       });
     })
     .filter(exists);
@@ -80,10 +96,12 @@ export function createResolvers(
   options: CombinedResolverOptions,
   config?: PacksConfig,
 ) {
+  const logger = loggerOf(options);
+  const context: BaseContext = { logger };
   const resolvers = arrayOrSelf(options.from).flatMap((from) =>
-    createResolversFor(options, from, config),
+    createResolversFor(options, from, context, config),
   );
-  loggerOf(options).info(`Found ${resolvers.length} resource/data packs`);
+  logger.info(`Found ${resolvers.length} resource/data packs`);
   return resolvers;
 }
 

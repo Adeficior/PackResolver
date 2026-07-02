@@ -1,18 +1,23 @@
 import ZIP from "node-stream-zip";
-import type { Acceptable, DataConsumer } from "../acceptor/index.js";
-import type { Logger } from "../logger.js";
-import { AbstractResolver } from "./abstract.js";
+import type { Acceptable } from "../acceptor/index.js";
+import type { ContextLike } from "../context.js";
+import {
+  AbstractResolver,
+  type DataConsumerWithoutContext,
+} from "./abstract.js";
 import promiseData from "./dataPromise.js";
 
-export default class ArchiveResolver extends AbstractResolver<Acceptable> {
+export default class ArchiveResolver<
+  Context extends ContextLike,
+> extends AbstractResolver<Acceptable, Context & { source: string }> {
   constructor(
     private readonly archive: string,
-    private readonly logger: Logger,
+    context: Context,
   ) {
-    super();
+    super({ ...context, source: archive });
   }
 
-  async supply(acceptor: DataConsumer) {
+  async supply(acceptor: DataConsumerWithoutContext<Acceptable>) {
     const zip = new ZIP.async({ file: this.archive });
 
     try {
@@ -23,7 +28,6 @@ export default class ArchiveResolver extends AbstractResolver<Acceptable> {
             await acceptor(
               entry.name,
               promiseData(() => zip.entryData(entry)),
-              this.logger,
             );
           }
         }),

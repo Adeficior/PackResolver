@@ -1,6 +1,7 @@
 import crypto from "node:crypto";
 import { existsSync, readFileSync } from "node:fs";
 import type { Acceptable, Acceptor } from "./acceptor";
+import type { ContextLike } from "./context";
 import { filterAcceptor } from "./filter";
 import { afterFinalize } from "./middleware";
 
@@ -31,11 +32,11 @@ function createHash(content: Acceptable): string {
   return hash.read();
 }
 
-export function cachedAcceptor<Args extends unknown[] = []>(
-  acceptor: Acceptor<Acceptable, Args>,
+export function cachedAcceptor<Context extends ContextLike>(
+  acceptor: Acceptor<Acceptable, Context>,
   cacheFile: string,
   cleanup?: (orphans: string[]) => Promise<void>,
-): Acceptor<Acceptable, Args> {
+): Acceptor<Acceptable, Context> {
   const lastCache = parseCacheFile(cacheFile);
   const nextCache = new Map<string, string>();
 

@@ -1,21 +1,28 @@
-import type { Logger } from "../logger";
+import type { BaseContext, ContextLike } from "../context";
 
 export type Acceptable = string | NodeJS.ArrayBufferView;
 
-export type DataConsumer<Data = Acceptable, Args extends unknown[] = []> = (
+// TODO change order
+export type DataConsumer<
+  Data = Acceptable,
+  Context extends ContextLike = BaseContext,
+> = (
   path: string,
   content: PromiseLike<Data>,
-  logger: Logger,
-  ...args: Args
+  context: Context,
 ) => void | false | Promise<void | false>;
 
-export interface Acceptor<Data = Acceptable, Args extends unknown[] = []> {
-  accept: DataConsumer<Data, Args>;
-  finalize?: (...args: Args) => void | Promise<void>;
+export interface Acceptor<
+  Data = Acceptable,
+  Context extends ContextLike = BaseContext,
+> {
+  accept: DataConsumer<Data, Context>;
+  finalize?: () => void | Promise<void>;
 }
 
-export function simpleAcceptor<Data = Acceptable, Args extends unknown[] = []>(
-  accept: DataConsumer<Data, Args>,
-): Acceptor<Data, Args> {
+export function simpleAcceptor<
+  Data = Acceptable,
+  Context extends ContextLike = BaseContext,
+>(accept: DataConsumer<Data, Context>): Acceptor<Data, Context> {
   return { accept };
 }

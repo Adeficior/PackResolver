@@ -1,9 +1,10 @@
 import { type Acceptor, type DataConsumer } from "./acceptor";
+import { extendContext, type ContextLike } from "./context";
 
-export function afterFinalize<Data, Args extends unknown[]>(
-  acceptor: Acceptor<Data, Args>,
-  finalize: NonNullable<Acceptor<Data, Args>["finalize"]>,
-): Acceptor<Data, Args> {
+export function afterFinalize<Data, Context extends ContextLike>(
+  acceptor: Acceptor<Data, Context>,
+  finalize: NonNullable<Acceptor<Data, Context>["finalize"]>,
+): Acceptor<Data, Context> {
   return {
     accept: acceptor.accept.bind(acceptor),
     finalize: async (...args) => {
@@ -13,14 +14,14 @@ export function afterFinalize<Data, Args extends unknown[]>(
   };
 }
 
-export type DataTransformer<Data, Args extends unknown[]> = (
-  ...args: Parameters<DataConsumer<Data, Args>>
+export type DataTransformer<Data, Context extends ContextLike> = (
+  ...args: Parameters<DataConsumer<Data, Context>>
 ) => Promise<Data | false> | Data | false;
 
-export function transformData<Data, Args extends unknown[]>(
-  acceptor: Acceptor<Data, Args>,
-  transform: DataTransformer<Data, Args>,
-): Acceptor<Data, Args> {
+export function transformData<Data, Context extends ContextLike>(
+  acceptor: Acceptor<Data, Context>,
+  transform: DataTransformer<Data, Context>,
+): Acceptor<Data, Context> {
   return {
     accept: async (path, data, ...args) => {
       const transformed = await transform(path, data, ...args);
@@ -31,16 +32,17 @@ export function transformData<Data, Args extends unknown[]>(
   };
 }
 
-export function supplyArguments<
+export function withContext<
   Data,
-  IArgs extends unknown[],
-  OArgs extends unknown[],
+  Context extends ContextLike,
+  Additional extends ContextLike,
 >(
-  acceptor: Acceptor<Data, [...IArgs, ...OArgs]>,
-  oArgs: OArgs,
-): Acceptor<Data, IArgs> {
+  acceptor: Acceptor<Data, Context & Additional>,
+  additional: Additional,
+): Acceptor<Data, Context> {
   return {
-    accept: async (...iArgs) => acceptor.accept(...iArgs, ...oArgs),
-    finalize: (...iArgs) => acceptor.finalize?.(...iArgs, ...oArgs),
+    accept: async (path, data, context) =>
+      acceptor.accept(path, data, extendContext(context, additional)),
+    finalize: acceptor.finalize?.bind(acceptor),
   };
 }

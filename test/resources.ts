@@ -7,8 +7,8 @@ export default function createResourcesResolver(
   options: Omit<ResolverOptions, "from"> = {},
 ) {
   return createResolver({
-    ...options,
-    from: join("test/resources", path),
     logger: false,
+    from: join("test/resources", path),
+    ...options,
   });
 }

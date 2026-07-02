@@ -1,16 +1,20 @@
 import { minimatch } from "minimatch";
 import type { Acceptor } from "./acceptor/index.js";
+import type { ContextLike } from "./context.js";
 import { transformData } from "./middleware.js";
 import type { FilterOptions } from "./options.js";
 import type { Resolver, ResolverRunner } from "./resolver/index.js";
 import { arrayOrSelf } from "./util.js";
 
-type FilterFunction<T> = (
+type FilterFunction<Data, Context extends ContextLike> = (
   path: string,
-  data: PromiseLike<T>,
+  data: PromiseLike<Data>,
+  context: Context,
 ) => boolean | Promise<boolean>;
 
-export function createFilter<T>(options: FilterOptions): FilterFunction<T> {
+export function createFilter<Data, Context extends ContextLike>(
+  options: FilterOptions,
+): FilterFunction<Data, Context> {
   const include = arrayOrSelf(options.include);
   const exclude = arrayOrSelf(options.exclude);
   return (path) => {
@@ -21,24 +25,24 @@ export function createFilter<T>(options: FilterOptions): FilterFunction<T> {
   };
 }
 
-export function filterAcceptor<Data, Args extends unknown[]>(
-  acceptor: Acceptor<Data, Args>,
-  options: FilterOptions | FilterFunction<Data>,
-): Acceptor<Data, Args> {
+export function filterAcceptor<Data, Context extends ContextLike>(
+  acceptor: Acceptor<Data, Context>,
+  options: FilterOptions | FilterFunction<Data, Context>,
+): Acceptor<Data, Context> {
   const filter =
     typeof options === "function" ? options : createFilter(options);
 
-  return transformData(acceptor, async (path, data, ..._args) => {
-    if (!(await filter(path, data))) return false;
+  return transformData(acceptor, async (path, data, context) => {
+    if (!(await filter(path, data, context))) return false;
     return data;
   });
 }
 
-export function filterResolver<Data, Args extends unknown[]>(
-  resolver: Resolver<Data, Args>,
-  options: FilterOptions | FilterFunction<Data>,
-): Resolver<Data, Args> {
-  const extract: ResolverRunner<Data, Args> = (acceptor, ...args) => {
+export function filterResolver<Data, Context extends ContextLike>(
+  resolver: Resolver<Data, Context>,
+  options: FilterOptions | FilterFunction<Data, Context>,
+): Resolver<Data, Context> {
+  const extract: ResolverRunner<Data, Context> = (acceptor, ...args) => {
     const filtered = filterAcceptor(acceptor, options);
     return resolver.extract(filtered, ...args);
   };

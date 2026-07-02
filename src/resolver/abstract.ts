@@ -1,13 +1,26 @@
 import type { Resolver, ResolverRunner } from ".";
 import type { DataConsumer } from "../acceptor";
+import { extendContext, type ContextLike } from "../context";
 
-export abstract class AbstractResolver<Data> implements Resolver<Data> {
-  public readonly extract: ResolverRunner<Data> = async (acceptor) => {
-    await this.supply(acceptor.accept.bind(acceptor));
+export type DataConsumerWithoutContext<Data> = (
+  path: string,
+  content: PromiseLike<Data>,
+) => ReturnType<DataConsumer<Data>>;
+
+export abstract class AbstractResolver<
+  Data,
+  Context extends ContextLike,
+> implements Resolver<Data, Context> {
+  constructor(private readonly context: Context) {}
+
+  public readonly extract: ResolverRunner<Data, Context> = async (acceptor) => {
+    await this.supply((...args) =>
+      acceptor.accept(...args, extendContext(this.context, {})),
+    );
     if (acceptor.finalize) await acceptor.finalize();
   };
 
   protected abstract supply(
-    acceptor: DataConsumer<Data, []>,
+    acceptor: DataConsumerWithoutContext<Data>,
   ): Promise<void> | void;
 }

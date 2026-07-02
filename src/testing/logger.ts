@@ -1,6 +1,5 @@
 import { mock, type Mock } from "bun:test";
 import type { Logger } from "../logger.js";
-import { wrapLogMethods } from "../logger.js";
 
 export interface TestLogger extends Logger {
   reset(): void;
@@ -10,17 +9,17 @@ export interface TestLogger extends Logger {
 }
 
 export function createTestLogger(): TestLogger {
-  const logger = wrapLogMethods({
-    error: mock(),
-    warn: mock(),
-    info: mock(),
-  }) as TestLogger;
-
-  logger.reset = () => {
-    logger.info.mockReset();
-    logger.warn.mockReset();
-    logger.error.mockReset();
+  const error = mock<Logger["error"]>();
+  const info = mock<Logger["info"]>();
+  const warn = mock<Logger["warn"]>();
+  return {
+    error,
+    info,
+    warn,
+    reset: () => {
+      info.mockReset();
+      warn.mockReset();
+      error.mockReset();
+    },
   };
-
-  return logger;
 }

@@ -15,8 +15,8 @@ describe("data promises", () => {
 
     const supplier = mock(() => Promise.resolve("data"));
     const data = promiseData(supplier);
-    await acceptor.accept("test/path", data, logger);
-    await acceptor.accept("test/other-path", data, logger);
+    await acceptor.accept("test/path", data, { logger });
+    await acceptor.accept("test/other-path", data, { logger });
 
     expect(supplier).toBeCalledTimes(1);
   });
@@ -31,7 +31,7 @@ describe("data promises", () => {
 
     const supplier = mock(() => Promise.resolve("data"));
     const data = promiseData(supplier);
-    await acceptor.accept(expectedPath, data, logger);
+    await acceptor.accept(expectedPath, data, { logger });
 
     expect(receivedPath).toBe(expectedPath);
     expect(supplier).not.toBeCalled();

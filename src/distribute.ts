@@ -1,11 +1,12 @@
 import { minimatch } from "minimatch";
 import type { Acceptor } from "./acceptor";
+import type { ContextLike } from "./context";
 import { exists, uniq } from "./util";
 
-export function distributedAcceptor<Data, Args extends unknown[]>(
-  patterns: Record<string, Acceptor<Data, Args>>,
-  fallback?: Acceptor<Data, Args>,
-): Acceptor<Data, Args> {
+export function distributedAcceptor<Data, Context extends ContextLike>(
+  patterns: Record<string, Acceptor<Data, Context>>,
+  fallback?: Acceptor<Data, Context>,
+): Acceptor<Data, Context> {
   const finalizes = uniq([...Object.values(patterns), fallback])
     .map((it) => it?.finalize?.bind(it))
     .filter(exists);
