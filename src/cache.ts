@@ -1,5 +1,5 @@
 import crypto from "node:crypto";
-import { existsSync, readFileSync } from "node:fs";
+import { existsSync, readFileSync, writeFileSync } from "node:fs";
 import type { Acceptable, Acceptor } from "./acceptor";
 import type { ContextLike } from "./context";
 import { filterAcceptor } from "./filter";
@@ -22,6 +22,13 @@ function parseCacheFile(path: string) {
   }
 
   return map;
+}
+
+function writeCacheFile(cacheFile: string, nextCache: Map<string, string>) {
+  const encoded = [...nextCache.entries()]
+    .map(([key, value]) => `${key} ${value}`)
+    .join("\n");
+  writeFileSync(cacheFile, encoded);
 }
 
 function createHash(content: Acceptable): string {
@@ -52,6 +59,7 @@ export function cachedAcceptor<Context extends ContextLike>(
   });
 
   return afterFinalize(filtered, async () => {
+    writeCacheFile(cacheFile, nextCache);
     if (cleanup) await cleanup(orphans());
   });
 }
