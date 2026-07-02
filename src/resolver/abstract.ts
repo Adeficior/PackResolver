@@ -14,8 +14,8 @@ export abstract class AbstractResolver<
   constructor(private readonly context: Context) {}
 
   public readonly extract: ResolverRunner<Data, Context> = async (acceptor) => {
-    await this.supply((...args) =>
-      acceptor.accept(...args, extendContext(this.context, {})),
+    await this.supply((path, ...args) =>
+      acceptor.accept(path, ...args, extendContext(this.context, { path })),
     );
     if (acceptor.finalize) await acceptor.finalize();
   };

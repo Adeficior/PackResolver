@@ -17,14 +17,6 @@ import ArchiveResolver from "./archive.js";
 import FolderResolver from "./folder.js";
 import type { Resolver } from "./index.js";
 
-export interface ResolverInfo<
-  Data = Acceptable,
-  Context extends ContextLike = BaseContext,
-> {
-  resolver: Resolver<Data, Context>;
-  name: string;
-}
-
 function createUnfilteredResolver<Context extends ContextLike>(
   { path, info }: Omit<PathInfo, "name">,
   context: Context,

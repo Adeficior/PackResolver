@@ -72,9 +72,12 @@ it("gets context from resolver", async () => {
 
   await resolver.extract(acceptor);
 
-  expect(logger.info).toBeCalledWith("received", {
-    source: join("test", "resources", "folder"),
-  });
+  expect(logger.info).toBeCalledWith(
+    "received",
+    expect.objectContaining({
+      source: join("test", "resources", "folder"),
+    }),
+  );
 });
 
 it("gets additional context from resolver", async () => {
@@ -87,8 +90,11 @@ it("gets additional context from resolver", async () => {
   const context = { key: "value" };
   await supplyResolverContext(resolver, context).extract(acceptor);
 
-  expect(logger.info).toBeCalledWith("received", {
-    ...context,
-    source: join("test", "resources", "folder"),
-  });
+  expect(logger.info).toBeCalledWith(
+    "received",
+    expect.objectContaining({
+      ...context,
+      source: join("test", "resources", "folder"),
+    }),
+  );
 });

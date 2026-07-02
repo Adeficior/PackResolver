@@ -1,24 +1,19 @@
 import type { Resolver, ResolverRunner } from ".";
-import type { Acceptor, CombinedResolverOptions, ResolverOptions } from "..";
+import type { Acceptor, CombinedResolverOptions } from "..";
 import type { ContextLike } from "../context";
-import { createResolvers, loggerOf, type ResolverInfo } from "./create";
+import { createResolvers } from "./create";
 
 export function combineResolvers<Data, Context extends ContextLike>(
   resolvers: ReadonlyArray<
-    | ResolverInfo<Data, Context>
-    | Resolver<Data, Context>
-    | ResolverRunner<Data, Context>
+    Resolver<Data, Context> | ResolverRunner<Data, Context>
   >,
-  options: Pick<ResolverOptions, "logger"> & { async?: boolean } = {},
+  options: { async?: boolean } = {},
 ): Resolver<Data, Context> {
-  const logger = loggerOf(options);
   const runners: ResolverRunner<Data, Context>[] = resolvers.map(
     (it) =>
       (acceptor, ...args) => {
         if (typeof it === "function") return it(acceptor, ...args);
-        if ("extract" in it) return it.extract(acceptor, ...args);
-        logger.info(it.name);
-        return it.resolver.extract(acceptor, ...args);
+        return it.extract(acceptor, ...args);
       },
   );
 
@@ -40,7 +35,9 @@ export function combineResolvers<Data, Context extends ContextLike>(
   };
 }
 
-export function createCombinedResolver(options: CombinedResolverOptions) {
+export function createCombinedResolver(
+  options: CombinedResolverOptions & { async?: boolean },
+) {
   const resolvers = createResolvers(options);
   return combineResolvers(resolvers, options);
 }
